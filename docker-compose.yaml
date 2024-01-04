@@ -1,5 +1,18 @@
 version: '3'
 services:
+  jenkins-integration:
+    image: guhtiagosilva/jenkins-integration:1.0
+    container_name: jenkins-integration
+    ports:
+      - 80:8080
+    environment:
+      - DB_DATASOURCE_URL=jdbc:postgresql://postgres:5432/booksdb
+      - DB_USERNAME=gustavo
+      - DB_PASSWORD=1234567
+    depends_on:
+      - postgres
+    networks:
+      - postgres
   postgres:
     container_name: postgres
     image: postgres
