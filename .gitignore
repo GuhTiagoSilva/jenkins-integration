@@ -11,6 +11,8 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea
+jenkins-integration.iml
 
 # AWS User-specific
 .idea/**/aws.xml
