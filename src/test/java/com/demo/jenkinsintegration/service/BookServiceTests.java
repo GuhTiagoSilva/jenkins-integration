@@ -3,6 +3,9 @@ package com.demo.jenkinsintegration.service;
 import com.demo.jenkinsintegration.dto.BookInsertDTO;
 import com.demo.jenkinsintegration.dto.BookResponseDTO;
 import com.demo.jenkinsintegration.exception.BookNotFoundException;
+import com.demo.jenkinsintegration.faker.BookInsertDTOFaker;
+import com.demo.jenkinsintegration.faker.BookModelFaker;
+import com.demo.jenkinsintegration.faker.BookResponseDTOFaker;
 import com.demo.jenkinsintegration.model.Book;
 import com.demo.jenkinsintegration.repository.BookRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +18,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,94 +32,55 @@ class BookServiceTests {
     @Test
     @DisplayName("Should return a valid book response when existing book id is informed")
     void shouldReturnAValidBookResponseWhenExistingBookIdIsInformed() {
-        UUID existingBookId = UUID.randomUUID();
-        Book mockedBook = new Book(
-                existingBookId,
-                "Spider Man",
-                "The Spider Man",
-                305,
-                200.0
-        );
-        BookResponseDTO expectedBookResponseToBeCreated = new BookResponseDTO(
-                existingBookId,
-                "Spider Man",
-                "The Spider Man",
-                305,
-                200.0
-        );
+        Book existingBook = BookModelFaker.fakeOneWithBookId();
+        BookResponseDTO expectedBookResponse = BookResponseDTOFaker.fakeOne(existingBook.getId());
+        when(bookRepository.findById(existingBook.getId())).thenReturn(Optional.of(existingBook));
+        BookService bookService = new BookService(bookRepository);
 
-        when(bookRepository.findById(existingBookId)).thenReturn(Optional.of(mockedBook));
-        BookService service = new BookService(bookRepository);
+        BookResponseDTO bookResponse = bookService.findById(existingBook.getId());
 
-        BookResponseDTO bookResponseDTO = service.findById(existingBookId);
-
-        assertEquals(expectedBookResponseToBeCreated.id(), bookResponseDTO.id());
-        assertEquals(expectedBookResponseToBeCreated.page(), bookResponseDTO.page());
-        assertEquals(expectedBookResponseToBeCreated.title(), bookResponseDTO.title());
-        assertEquals(expectedBookResponseToBeCreated.description(), bookResponseDTO.description());
-        verify(bookRepository, times(1)).findById(existingBookId);
+        assertEquals(expectedBookResponse.id(), bookResponse.id());
+        assertEquals(expectedBookResponse.page(), bookResponse.page());
+        assertEquals(expectedBookResponse.title(), bookResponse.title());
+        assertEquals(expectedBookResponse.description(), bookResponse.description());
+        verify(bookRepository, times(1)).findById(existingBook.getId());
     }
 
     @Test
     @DisplayName("Should throw BookNotFoundException when non existing id is informed")
     void shouldThrowBookNotFoundExceptionWhenNonExistingIdIsInformed() {
-        UUID nonExistingId = UUID.randomUUID();
-        when(bookRepository.findById(nonExistingId)).thenReturn(Optional.empty());
-        BookService service = new BookService(bookRepository);
+        UUID nonExistingBookId = UUID.randomUUID();
+        when(bookRepository.findById(nonExistingBookId)).thenReturn(Optional.empty());
+        BookService bookService = new BookService(bookRepository);
 
-        var bookNotFoundException = assertThrows(BookNotFoundException.class, () -> service.findById(nonExistingId));
+        var bookNotFoundException =
+                assertThrows(BookNotFoundException.class, () -> bookService.findById(nonExistingBookId));
 
-        assertEquals("Book with id: " + nonExistingId + " not found", bookNotFoundException.getMessage());
-        verify(bookRepository, times(1)).findById(nonExistingId);
+        assertEquals("Book with id: " + nonExistingBookId + " not found", bookNotFoundException.getMessage());
+        verify(bookRepository, times(1)).findById(nonExistingBookId);
     }
 
     @Test
     @DisplayName("Should create a book successfully when all data is valid")
     void shouldCreateABookSuccessfullyWhenAllDataIsValid() {
-        UUID expectedBookIdToBeGeneratedAfterSaving = UUID.randomUUID();
-        Book bookBeforeSaving = new Book(
-                null,
-                "Spider Man",
-                "The Spider Man",
-                305,
-                200.0
-        );
-        Book createdBook = new Book(
-                expectedBookIdToBeGeneratedAfterSaving,
-                "Spider Man",
-                "The Spider Man",
-                305,
-                200.0
-        );
-        BookInsertDTO bookInsertDTO = new BookInsertDTO(
-                "Spider Man",
-                "The Spider Man",
-                305,
-                200.0
-        );
-        BookResponseDTO expectedBookResponseToBeCreated = new BookResponseDTO(
-                expectedBookIdToBeGeneratedAfterSaving,
-                "Spider Man",
-                "The Spider Man",
-                305,
-                200.0
-        );
-        when(bookRepository.save(bookBeforeSaving)).thenReturn(createdBook);
+        Book bookBeforeSaving = BookModelFaker.fakeOneWithoutBookId();
+        Book bookAfterSaving = BookModelFaker.fakeOneWithBookId();
+        BookInsertDTO bookInsertDTO = BookInsertDTOFaker.fakeOne();
+        BookResponseDTO expectedBookResponse = BookResponseDTOFaker.fakeOne(bookAfterSaving.getId());
+        when(bookRepository.save(bookBeforeSaving)).thenReturn(bookAfterSaving);
         BookService service = new BookService(bookRepository);
 
-        BookResponseDTO bookResponseDTO = service.create(bookInsertDTO);
+        BookResponseDTO bookResponse = service.create(bookInsertDTO);
 
-        assertEquals(expectedBookResponseToBeCreated.id(), expectedBookIdToBeGeneratedAfterSaving);
-        assertEquals(expectedBookResponseToBeCreated.id(), bookResponseDTO.id());
-        assertEquals(expectedBookResponseToBeCreated.page(), bookResponseDTO.page());
-        assertEquals(expectedBookResponseToBeCreated.title(), bookResponseDTO.title());
-        assertEquals(expectedBookResponseToBeCreated.description(), bookResponseDTO.description());
+        assertEquals(expectedBookResponse.id(), bookResponse.id());
+        assertEquals(expectedBookResponse.page(), bookResponse.page());
+        assertEquals(expectedBookResponse.title(), bookResponse.title());
+        assertEquals(expectedBookResponse.description(), bookResponse.description());
 
-        assertEquals(bookInsertDTO.title(), bookResponseDTO.title());
-        assertEquals(bookInsertDTO.description(), bookResponseDTO.description());
-        assertEquals(bookInsertDTO.page(), bookResponseDTO.page());
-        assertEquals(bookInsertDTO.price(), bookResponseDTO.price());
+        assertEquals(bookInsertDTO.title(), bookResponse.title());
+        assertEquals(bookInsertDTO.description(), bookResponse.description());
+        assertEquals(bookInsertDTO.page(), bookResponse.page());
+        assertEquals(bookInsertDTO.price(), bookResponse.price());
+        verify(bookRepository, atMost(1)).save(bookBeforeSaving);
     }
-
-
 }
