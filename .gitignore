@@ -235,3 +235,7 @@ buildNumber.properties
 .classpath
 
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij,maven,linux,intellij+all
+
+jenkins_agent
+jenkins_agent.pub
+jenkins-integration.iml

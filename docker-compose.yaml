@@ -1,14 +1,15 @@
 version: '3'
 services:
   jenkins-integration:
-    image: guhtiagosilva/jenkins-integration:1.0
+    image: guhtiagosilva/jenkins-integration:3.0
     container_name: jenkins-integration
     ports:
-      - 80:8080
+      - 80:8082
     environment:
       - DB_DATASOURCE_URL=jdbc:postgresql://postgres:5432/booksdb
       - DB_USERNAME=gustavo
-      - DB_PASSWORD=1234567
+      - DB_PASSWORD=${DB_PASSWORD}
+      - PORT=8082
     depends_on:
       - postgres
     networks:
@@ -41,9 +42,33 @@ services:
     networks:
       - postgres
     restart: unless-stopped
+  jenkins:
+    image: jenkins/jenkins:lts
+    privileged: true
+    user: root
+    ports:
+      - 8080:8080
+      - 50000:50000
+    container_name: jenkins
+    volumes:
+      - jenkins:/var/jenkins_home
+    networks:
+      - postgres
+  jenkins-agent:
+    image: jenkins/ssh-agent:jdk11
+    privileged: true
+    user: root
+    container_name: jenkins-agent
+    networks:
+      - postgres
+    expose:
+      - 22
+    environment:
+      - JENKINS_AGENT_SSH_PUBKEY=${YOUR_PUBLIC_SSH_KEY}
 networks:
   postgres:
     driver: bridge
 volumes:
   postgres:
   pgadmin:
+  jenkins:
