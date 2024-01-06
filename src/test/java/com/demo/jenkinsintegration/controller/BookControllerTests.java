@@ -48,7 +48,7 @@ class BookControllerTests {
         when(bookService.findById(existingBookId)).thenReturn(bookResponse);
 
         var httpResponse =
-                mockMvc.perform(get("/books/{id}", existingBookId).accept(MediaType.APPLICATION_JSON));
+                this.mockMvc.perform(get("/books/{id}", existingBookId).accept(MediaType.APPLICATION_JSON));
 
         httpResponse.andExpect(status().isOk());
         httpResponse.andExpect(jsonPath("$.id").exists());
@@ -72,8 +72,8 @@ class BookControllerTests {
         String errorMessage = "Book with id: " + nonExistingBookId + " not found";
         when(bookService.findById(nonExistingBookId)).thenThrow(new BookNotFoundException(errorMessage));
 
-        var httpResponse =
-                mockMvc.perform(get("/books/{id}", nonExistingBookId).accept(MediaType.APPLICATION_JSON));
+        var httpResponse = this.mockMvc.perform(get("/books/{id}", nonExistingBookId)
+                .accept(MediaType.APPLICATION_JSON));
 
         httpResponse.andExpect(status().isNotFound());
         httpResponse.andExpect(jsonPath("$.timestamp").exists());
@@ -96,7 +96,7 @@ class BookControllerTests {
         String bookBeforeSavingAsJson = objectMapper.writeValueAsString(bookBeforeSaving);
         when(bookService.create(bookBeforeSaving)).thenReturn(bookResponse);
 
-        var httpResponse = mockMvc.perform(post("/books")
+        var httpResponse = this.mockMvc.perform(post("/books")
                 .content(bookBeforeSavingAsJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
@@ -121,7 +121,7 @@ class BookControllerTests {
         BookInsertDTO bookWithEmptyTitle = BookInsertDTOFaker.fakeOneWithEmptyTitle();
         String bookWithEmptyTitleAsJson = objectMapper.writeValueAsString(bookWithEmptyTitle);
 
-        var httpResponse = mockMvc.perform(post("/books")
+        var httpResponse = this.mockMvc.perform(post("/books")
                 .content(bookWithEmptyTitleAsJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
@@ -143,7 +143,7 @@ class BookControllerTests {
         BookInsertDTO bookWithNullTitle = BookInsertDTOFaker.fakeOneWithNullTitle();
         String bookWithNullTitleAsJson = objectMapper.writeValueAsString(bookWithNullTitle);
 
-        var httpResponse = mockMvc.perform(post("/books")
+        var httpResponse = this.mockMvc.perform(post("/books")
                 .content(bookWithNullTitleAsJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
@@ -165,7 +165,7 @@ class BookControllerTests {
         BookInsertDTO bookWithEmptyDescription = BookInsertDTOFaker.fakeOneWithEmptyDescription();
         String bookWithEmptyDescriptionAsJson = objectMapper.writeValueAsString(bookWithEmptyDescription);
 
-        var httpResponse = mockMvc.perform(post("/books")
+        var httpResponse = this.mockMvc.perform(post("/books")
                 .content(bookWithEmptyDescriptionAsJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
@@ -187,7 +187,7 @@ class BookControllerTests {
         BookInsertDTO bookWithNullDescription = BookInsertDTOFaker.fakeOneWithNullDescription();
         String bookWithNullDescriptionAsJson = objectMapper.writeValueAsString(bookWithNullDescription);
 
-        var httpResponse = mockMvc.perform(post("/books")
+        var httpResponse = this.mockMvc.perform(post("/books")
                 .content(bookWithNullDescriptionAsJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
@@ -209,7 +209,7 @@ class BookControllerTests {
         BookInsertDTO bookWithNegativePrice = BookInsertDTOFaker.fakeOneWithNegativePrice();
         String bookWithNegativePriceAsJson = objectMapper.writeValueAsString(bookWithNegativePrice);
 
-        var httpResponse = mockMvc.perform(post("/books")
+        var httpResponse = this.mockMvc.perform(post("/books")
                 .content(bookWithNegativePriceAsJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
@@ -231,7 +231,7 @@ class BookControllerTests {
         BookInsertDTO bookWithNegativePage = BookInsertDTOFaker.fakeOneWithNegativePrice();
         String bookWithNegativePageAsJson = objectMapper.writeValueAsString(bookWithNegativePage);
 
-        var httpResponse = mockMvc.perform(post("/books")
+        var httpResponse = this.mockMvc.perform(post("/books")
                 .content(bookWithNegativePageAsJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
