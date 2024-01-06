@@ -1,7 +1,7 @@
 version: '3'
 services:
   jenkins-integration:
-    image: guhtiagosilva/jenkins-integration:4.0
+    image: guhtiagosilva/jenkins-integration:11.0
     container_name: jenkins-integration
     ports:
       - "80:8082"
@@ -10,9 +10,12 @@ services:
       - DB_USERNAME=gustavo
       - DB_PASSWORD=1234567
       - PORT=8082
+      - ZIPKIN_SPANS_ENDPOINT=http://zipkin:9411/api/v2/spans
     depends_on:
       - postgres
       - zipkin
+      - prometheus
+      - grafana
     networks:
       - postgres
   postgres:
@@ -29,6 +32,29 @@ services:
     networks:
       - postgres
     restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+    volumes:
+      - ./monitoring/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+    networks:
+      - postgres
+  grafana:
+    image: grafana/grafana:9.5.2
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - postgres
+    volumes:
+      - ./monitoring/grafana/datasources/:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
