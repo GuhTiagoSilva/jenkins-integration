@@ -5,6 +5,7 @@ import com.demo.jenkinsintegration.dto.BookResponseDTO;
 import com.demo.jenkinsintegration.exception.BookNotFoundException;
 import com.demo.jenkinsintegration.model.Book;
 import com.demo.jenkinsintegration.repository.BookRepository;
+import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Service
+@Observed(name = "bookService")
 @RequiredArgsConstructor
 @Log4j2
 public class BookService {
@@ -24,7 +26,7 @@ public class BookService {
     @Transactional(readOnly = true)
     public BookResponseDTO findById(UUID id) {
 
-        var book = bookRepository
+        Book book = bookRepository
                 .findById(id)
                 .orElseThrow(() -> new BookNotFoundException("Book with id: " + id + " not found"));
 
@@ -35,7 +37,7 @@ public class BookService {
 
     public BookResponseDTO create(BookInsertDTO bookInsertDTO) {
 
-        var book = new Book();
+        Book book = new Book();
 
         book.setPage(bookInsertDTO.page());
         book.setTitle(bookInsertDTO.title());

@@ -3,6 +3,7 @@ package com.demo.jenkinsintegration.controller;
 import com.demo.jenkinsintegration.dto.BookInsertDTO;
 import com.demo.jenkinsintegration.dto.BookResponseDTO;
 import com.demo.jenkinsintegration.service.BookService;
+import io.micrometer.observation.annotation.Observed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
+@Observed(name = "bookController")
 @RequestMapping("/books")
 @RequiredArgsConstructor
 @Log4j2

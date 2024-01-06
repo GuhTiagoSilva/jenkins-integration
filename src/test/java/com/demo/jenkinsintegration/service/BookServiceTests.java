@@ -30,8 +30,8 @@ class BookServiceTests {
     private final BookRepository bookRepository = mock();
 
     @Test
-    @DisplayName("Should return a valid book response when existing book id is informed")
-    void shouldReturnAValidBookResponseWhenExistingBookIdIsInformed() {
+    @DisplayName("Should [RETURN] book response when existing book id is informed")
+    void shouldReturnBookResponseWhenExistingBookIdIsInformed() {
         Book existingBook = BookModelFaker.fakeOneWithBookId();
         BookResponseDTO expectedBookResponse = BookResponseDTOFaker.fakeOne(existingBook.getId());
         when(bookRepository.findById(existingBook.getId())).thenReturn(Optional.of(existingBook));
@@ -47,7 +47,7 @@ class BookServiceTests {
     }
 
     @Test
-    @DisplayName("Should throw BookNotFoundException when non existing id is informed")
+    @DisplayName("Should throw [BookNotFoundException] when non existing id is informed")
     void shouldThrowBookNotFoundExceptionWhenNonExistingIdIsInformed() {
         UUID nonExistingBookId = UUID.randomUUID();
         when(bookRepository.findById(nonExistingBookId)).thenReturn(Optional.empty());
@@ -61,7 +61,7 @@ class BookServiceTests {
     }
 
     @Test
-    @DisplayName("Should create a book successfully when all data is valid")
+    @DisplayName("Should [CREATE] a book successfully when all data is valid")
     void shouldCreateABookSuccessfullyWhenAllDataIsValid() {
         Book bookBeforeSaving = BookModelFaker.fakeOneWithoutBookId();
         Book bookAfterSaving = BookModelFaker.fakeOneWithBookId();
@@ -76,7 +76,6 @@ class BookServiceTests {
         assertEquals(expectedBookResponse.page(), bookResponse.page());
         assertEquals(expectedBookResponse.title(), bookResponse.title());
         assertEquals(expectedBookResponse.description(), bookResponse.description());
-
         assertEquals(bookInsertDTO.title(), bookResponse.title());
         assertEquals(bookInsertDTO.description(), bookResponse.description());
         assertEquals(bookInsertDTO.page(), bookResponse.page());
